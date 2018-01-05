@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import time
 from random import randint
+from mcp3208 import MCP3208
 
 #Set some Globabl Limits
 
@@ -13,9 +14,19 @@ MinAuxVolt=11
 WarnAuxVolt=12
 MaxAuxVolt=15
 
+Scaleone=.013854
+
+
+
+
+
 
 
 class App():
+
+
+
+
 
     def recorddata(self):
 
@@ -26,14 +37,21 @@ class App():
         global MinAuxVolt
         global WarnAuxVolt
         global MaxAuxVolt
+        global Scaleone
 
         defaultbg = root.cget('bg')
+
+        adc=MCP3208()
+        
+
+        mainreading=adc.read(7)
+        auxreading=adc.read(0)
 
 
 
     #Set the back ground color depending on the voltage
 
-        self.mainvolt.set(randint(0,100))
+        self.mainvolt.set(mainreading*Scaleone)
         if self.mainvolt.get() < MinMainVolt or self.mainvolt.get() > MaxMainVolt:
             self.mainvoltlabel.config(bg='red')
         elif self.mainvolt.get() < WarnMainVolt:
@@ -42,7 +60,7 @@ class App():
             self.mainvoltlabel.config(bg=defaultbg)
 
 
-        self.auxvolt.set(randint(0,100))
+        self.auxvolt.set(auxreading)
         if self.auxvolt.get() < MinMainVolt or self.auxvolt.get() > MaxAuxVolt:
             self.auxvoltlabel.config(bg='red')
         elif self.auxvolt.get() < WarnMainVolt:
@@ -57,6 +75,11 @@ class App():
         root.after(1000,lambda: self.recorddata())
 
     def __init__(self, master):
+
+        adc=MCP3208()
+
+
+        
         frame=Frame(master)
         frame.pack()
         master.title("Solar Car Telemetry")
@@ -72,8 +95,8 @@ class App():
         self.amphour=DoubleVar()
 
         #set some defaults
-        self.main=48.3
-        self.aux=12.3
+        self.main=0
+        self.aux=0
         self.cur=50.0
         self.amphr=100
 
